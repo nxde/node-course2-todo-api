@@ -27,7 +27,7 @@ MongoClient.connect("mongodb://mead:mead123456@ds023435.mlab.com:23435/todoapp-m
             console.log(`Todos count: ${count}` );
             
         },err=>{
-            console.log("Unable to count ",err);
+            console.log("Unable to count todos ",err);
         });
 
 
