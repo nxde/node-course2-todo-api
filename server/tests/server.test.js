@@ -4,8 +4,17 @@ const request=require("supertest");
 const {Todo}=require("./../models/todo.js");
 const {app}=require("./../server");
 
-beforeEach(done=>{
-    Todo.deleteMany({}).then(()=>done(),err=>done(err));
+const todos=[{
+    text:"First test todo"
+},{
+    text:"Second test todo"
+}
+];
+
+//https://mochajs.org/#working-with-promises
+beforeEach(async ()=>{
+    await Todo.deleteMany({});
+    await Todo.insertMany(todos);
 });
 
 describe("POST /todos",()=>{
@@ -22,7 +31,7 @@ describe("POST /todos",()=>{
                 if(err){
                     return done(err);
                 }
-                Todo.find().then(todos=>{
+                Todo.find({text:text}).then(todos=>{
                     expect(todos.length).toBe(1);
                     expect(todos[0].text).toBe(text);
                     done();
@@ -38,9 +47,21 @@ describe("POST /todos",()=>{
             .end((err,res)=>{
                 if(err)return done(err);
                 Todo.find().then(todos=>{
-                    expect(todos.length).toBe(0);
+                    expect(todos.length).toBe(2);
                     done();
                 }).catch(err=>done(err));
             });
+    });
+});
+
+
+describe("GET /todos",()=>{
+    it("it should get all todos",done=>{
+        request(app)
+            .get("/todos")
+            .expect(res=>{
+                expect(res.body.todos.length).toBe(2);
+            })
+            .end(done);
     });
 });
