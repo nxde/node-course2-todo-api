@@ -1,0 +1,5 @@
+Push the app to heroku
+    - heroku create
+        (https://floating-reaches-39188.herokuapp.com/ | https://git.heroku.com/floating-reaches-39188.git)
+    - heroku addons:create mongolab:sandbox     (get mlab db)
+    - heroku config  (show MONGODB_URI)

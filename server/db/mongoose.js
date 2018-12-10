@@ -1,6 +1,7 @@
 const mongoose=require("mongoose");
 
 mongoose.Promise=global.Promise;
+//mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/TodoApp");
 mongoose.connect("mongodb://mead:mead123456@ds023435.mlab.com:23435/todoapp-mead",{ useNewUrlParser: true });
 
 

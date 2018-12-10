@@ -6,6 +6,8 @@ const {Todo}=require("./models/todo.js");
 const {User}=require("./models/user.js");
 const {ObjectID}=require("mongodb");
 
+var PORT=process.env.PORT ||3000;
+
 var app=express();
 
 app.use(bodyParser.json());
@@ -50,8 +52,8 @@ app.get("/todos/:id",(req,res)=>{
     });
 });
 
-app.listen(3000,()=>{
-    console.log("Server is up on port 3000");
+app.listen(PORT,()=>{
+    console.log(`Server is up on port ${PORT}`);
 });
 
 module.exports={app};
