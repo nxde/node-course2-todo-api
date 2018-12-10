@@ -4,7 +4,7 @@ const bodyParser=require("body-parser");
 var {mongoose}=require("./db/mongoose.js");
 const {Todo}=require("./models/todo.js");
 const {User}=require("./models/user.js");
-
+const {ObjectID}=require("mongodb");
 
 var app=express();
 
@@ -29,6 +29,24 @@ app.get("/todos",(req,res)=>{
         });
     },(err)=>{
         res.status(400).send(err);
+    });
+});
+
+app.get("/todos/:id",(req,res)=>{
+    var id=req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Todo.findById(id).then(todo=>{
+        if(todo){
+            res.send({todo});
+        }
+        else{
+            res.status(404).send();
+        }
+    }).catch(err=>{
+        res.status(400).send();
     });
 });
 
