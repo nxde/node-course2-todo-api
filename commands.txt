@@ -12,3 +12,8 @@ See logs of heroku:
 
 Test watch:
     - npm run test-watch        
+
+Install lint:
+    - Install ESLint extension in VS Code
+    - npm install -g eslint (or npm install eslint  for just the workspace folder)
+    - eslint --init     (answer questions)    

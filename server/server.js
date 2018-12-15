@@ -99,15 +99,24 @@ app.post('/users', (req, res) => {
   const user = new User(body);
   // console.log('Newly created user,before saved: ', user);
 
-  user.save().then(() => {
-    user.generateAuthToken();
-  }).then(token => {
+  user.save().then(() => user.generateAuthToken()).then(token => {
     res.header('x-auth', token).send(user);
   }).catch(err => {
     res.status(400).send(err);
   });
 });
 
+app.post('/users/login', (req, res) => {
+  const { email, password } = req.body;
+
+  User.findByCredentials(email, password).then((user) => {
+    user.generateAuthToken().then((token) => {
+      res.header('x-auth', token).send(user);
+    });
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
 
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
