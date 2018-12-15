@@ -17,3 +17,17 @@ Install lint:
     - Install ESLint extension in VS Code
     - npm install -g eslint (or npm install eslint  for just the workspace folder)
     - eslint --init     (answer questions)    
+
+Configure Heroku:
+    - heroku config         (See config variables)
+    - heroku config:set NAME=VALUE
+    - heroku config:get NAME
+    - heroku config:unset NAME
+    - λ heroku config:set JWT_SECRET=sdfsfsdwerw353ku434bb3
+            Setting JWT_SECRET and restarting ⬢ floating-reaches-39188... done, v5
+            JWT_SECRET: sdfsfsdwerw353ku434bb3    
+    - λ heroku config:set MONGODB_URI=mongodb://mead:mead123456@ds023435.mlab.com:23435/todoapp-mead
+            Setting MONGODB_URI and restarting ⬢ floating-reaches-39188... done, v6
+            MONGODB_URI: mongodb://mead:mead123456@ds023435.mlab.com:23435/todoapp-mead        
+
+            

@@ -8,7 +8,6 @@ const {
   todos, populateTodos, users, populateUsers,
 } = require('./seed/seed');
 
-
 // https://mochajs.org/#working-with-promises
 beforeEach(populateUsers);
 beforeEach(populateTodos);
