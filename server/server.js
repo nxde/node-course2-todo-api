@@ -59,7 +59,7 @@ app.get('/todos/:id', authenticate, (req, res) => {
     res.status(400).send();
   });
 });
-
+/*
 app.delete('/todos/:id', authenticate, (req, res) => {
   const { id } = req.params;
   if (!ObjectID.isValid(id)){
@@ -78,7 +78,28 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     res.status(400).send();
   });
 });
+*/
 
+app.delete('/todos/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  if (!ObjectID.isValid(id)){
+    return res.status(404).send();
+  }
+  try {
+    const todo = await Todo.findOneAndRemove({
+      _id: id,
+      _creator: req.user._id,
+    });
+    if (!todo) {
+      return res.status(404).send();
+    }
+    res.send({ todo });
+  } catch (e){
+    return res.status(400).send();
+  }
+});
+
+/*
 app.patch('/todos/:id', authenticate, (req, res) => {
   const { id } = req.params;
   const body = _.pick(req.body, ['text', 'completed']);
@@ -105,7 +126,38 @@ app.patch('/todos/:id', authenticate, (req, res) => {
       res.send({ todo });
     }).catch(err => res.status(400).send());
 });
+*/
 
+app.patch('/todos/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  const body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id)){
+    return res.status(404).send();
+  }
+
+  if (_.isBoolean(body.completed) && body.completed){
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  try {
+    const todo = await Todo.findOneAndUpdate({
+      _id: id,
+      _creator: req.user._id,
+    }, { $set: body }, { new: true });
+    if (!todo){
+      return res.status(404).send();
+    }
+    res.send({ todo });
+  } catch (e){
+    res.status(400).send();
+  }
+});
+
+/*
 app.post('/users', (req, res) => {
   const body = _.pick(req.body, ['email', 'password']);
   const user = new User(body);
@@ -117,7 +169,21 @@ app.post('/users', (req, res) => {
     res.status(400).send(err);
   });
 });
+*/
 
+app.post('/users', async (req, res) => {
+  const body = _.pick(req.body, ['email', 'password']);
+  const user = new User(body);
+  try {
+    await user.save();
+    const token = await user.generateAuthToken();
+    res.header('x-auth', token).send(user);
+  } catch (e){
+    res.status(400).send(e);
+  }
+});
+
+/*
 app.post('/users/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -129,13 +195,35 @@ app.post('/users/login', (req, res) => {
     res.status(400).send();
   });
 });
+*/
+app.post('/users/login', async (req, res) => {
+  const { email, password } = req.body;
 
+  try {
+    const user = await User.findByCredentials(email, password);
+    const token = await user.generateAuthToken();
+    res.header('x-auth', token).send(user);
+  } catch (e){
+    res.status(400).send();
+  }
+});
+
+/*
 app.delete('/users/me/token', authenticate, (req, res) => {
   req.user.removeToken(req.token).then(() => {
     res.send();
   }, () => {
     res.status(401).send();
   });
+});
+*/
+app.delete('/users/me/token', authenticate, async (req, res) => {
+  try {
+    await req.user.removeToken(req.token);
+    res.send();
+  } catch (e){
+    res.status(401).send();
+  }
 });
 
 app.get('/users/me', authenticate, (req, res) => {

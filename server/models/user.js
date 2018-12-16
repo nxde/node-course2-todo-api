@@ -41,6 +41,7 @@ UserSchema.methods.toJSON = function (){
   return _.pick(userObject, ['_id', 'email']);
 };
 
+/*
 UserSchema.methods.generateAuthToken = function (){
   const user = this;
   const access = 'auth';
@@ -52,6 +53,20 @@ UserSchema.methods.generateAuthToken = function (){
 
   return user.save().then(() => token);
 };
+*/
+
+UserSchema.methods.generateAuthToken = async function (){
+  const user = this;
+  const access = 'auth';
+  const token = jwt.sign({
+    id: user._id.toHexString(),
+    access,
+  }, process.env.JWT_SECRET).toString();
+  user.tokens.push({ access, token });
+
+  await user.save();
+  return token;
+};
 
 UserSchema.methods.removeToken = function (token){
   const user = this;
@@ -61,7 +76,7 @@ UserSchema.methods.removeToken = function (token){
     },
   });
 };
-
+/*
 UserSchema.statics.findByToken = function (token){
   const User = this;
   let decoded;
@@ -81,7 +96,25 @@ UserSchema.statics.findByToken = function (token){
     'tokens.access': 'auth',
   });
 };
+*/
 
+UserSchema.statics.findByToken = async function (token){
+  const User = this;
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({
+      _id: decoded.id,
+      'tokens.token': token,
+      'tokens.access': 'auth',
+    });
+    return user;
+  } catch (e){
+    throw e;
+  }
+};
+
+/*
 UserSchema.statics.findByCredentials = function (email, password){
   const User = this;
 
@@ -100,6 +133,29 @@ UserSchema.statics.findByCredentials = function (email, password){
       });
     });
   });
+};
+*/
+
+UserSchema.statics.findByCredentials = async function (email, password){
+  const User = this;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user){
+      throw Error;
+    }
+    const res = await new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        resolve(res);
+      });
+    });
+    if (!res){
+      throw Error;
+    }
+    return user;
+  } catch (e){
+    throw Error;
+  }
 };
 
 UserSchema.pre('save', function (next){
